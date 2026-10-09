@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import math
 import time
-from typing import Optional
 
 from rich import box
 from rich.console import Console, Group
@@ -183,7 +182,7 @@ def build_process_table(snapshot: SystemSnapshot) -> Panel:
     )
 
 
-def render_dashboard(snapshot: SystemSnapshot, interval: Optional[float] = None) -> Layout:
+def render_dashboard(snapshot: SystemSnapshot, interval: float | None = None) -> Layout:
     layout = Layout(name="root")
     layout.split_column(
         Layout(name="header", size=3),
@@ -219,7 +218,7 @@ def render_dashboard(snapshot: SystemSnapshot, interval: Optional[float] = None)
 def run_live_dashboard(
     collector: SystemCollector,
     interval: float,
-    console: Optional[Console] = None,
+    console: Console | None = None,
 ) -> None:
     console = console or Console()
     collector.warm_up()
@@ -274,11 +273,13 @@ def snapshot_to_markdown(snapshot: SystemSnapshot) -> str:
         "",
         "| Metrik | Penggunaan | Detail | Status |",
         "|--------|-----------:|--------|--------|",
-        f"| CPU | {cpu.total_percent:.1f}% | {cpu.core_count} core | {get_status_label(cpu.total_percent)} |",
+        f"| CPU | {cpu.total_percent:.1f}% | {cpu.core_count} core | "
+        f"{get_status_label(cpu.total_percent)} |",
         f"| RAM | {mem.percent:.1f}% | {format_bytes(mem.used)} / {format_bytes(mem.total)} "
         f"(available {format_bytes(mem.available)}) | {get_status_label(mem.percent)} |",
-        f"| Swap | {swap.percent:.1f}% | {swap_detail} | {get_status_label(swap.percent)} |",
         f"| Disk ({disk.path}) | {disk.percent:.1f}% | {format_bytes(disk.used)} / "
+        f"{format_bytes(disk.total)} (free {format_bytes(disk.free)}) | "
+        f"{get_status_label(disk.percent)} |",
         f"{format_bytes(disk.total)} (free {format_bytes(disk.free)}) | {get_status_label(disk.percent)} |",
         "",
         "## CPU per Core",
