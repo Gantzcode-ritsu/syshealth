@@ -1,5 +1,3 @@
-"""Unit test untuk syshealth.formatter (rendering, JSON, Markdown)."""
-
 import json
 
 import pytest
