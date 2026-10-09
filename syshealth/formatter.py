@@ -277,10 +277,10 @@ def snapshot_to_markdown(snapshot: SystemSnapshot) -> str:
         f"{get_status_label(cpu.total_percent)} |",
         f"| RAM | {mem.percent:.1f}% | {format_bytes(mem.used)} / {format_bytes(mem.total)} "
         f"(available {format_bytes(mem.available)}) | {get_status_label(mem.percent)} |",
+        f"| Swap | {swap.percent:.1f}% | {swap_detail} | {get_status_label(swap.percent)} |",
         f"| Disk ({disk.path}) | {disk.percent:.1f}% | {format_bytes(disk.used)} / "
         f"{format_bytes(disk.total)} (free {format_bytes(disk.free)}) | "
         f"{get_status_label(disk.percent)} |",
-        f"{format_bytes(disk.total)} (free {format_bytes(disk.free)}) | {get_status_label(disk.percent)} |",
         "",
         "## CPU per Core",
         "",
