@@ -12,10 +12,15 @@ dependencies = [
     "psutil>=5.9.0",
     "rich>=13.0.0",
     "typer>=0.9.0",
+    
 ]
-
 [project.optional-dependencies]
-dev = ["pytest>=7.0"]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.5.0",
+    "build>=1.0",
+    "twine>=5.0",
+]
 
 [project.scripts]
 syshealth = "syshealth.main:app"
@@ -29,3 +34,10 @@ version = { attr = "syshealth.__version__" }
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
