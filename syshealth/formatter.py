@@ -1,5 +1,3 @@
-"""Rendering TUI (rich) dan format ekspor (JSON / Markdown)."""
-
 from __future__ import annotations
 
 import json
@@ -28,9 +26,7 @@ from syshealth.utils import (
 )
 
 
-# ---------------------------------------------------------------- Komponen TUI
 def _metric_bar(label: str, percent: float, detail: str):
-    """Buat satu baris Progress Bar dengan warna dinamis sesuai threshold."""
     color = get_status_color(percent)
     progress = Progress(
         TextColumn("[bold]{task.description:<5}"),
@@ -188,7 +184,6 @@ def build_process_table(snapshot: SystemSnapshot) -> Panel:
 
 
 def render_dashboard(snapshot: SystemSnapshot, interval: Optional[float] = None) -> Layout:
-    """Susun seluruh panel menjadi satu Layout dashboard."""
     layout = Layout(name="root")
     layout.split_column(
         Layout(name="header", size=3),
@@ -226,7 +221,6 @@ def run_live_dashboard(
     interval: float,
     console: Optional[Console] = None,
 ) -> None:
-    """Jalankan dashboard Live sampai pengguna menekan Ctrl+C."""
     console = console or Console()
     collector.warm_up()
 
@@ -247,7 +241,6 @@ def run_live_dashboard(
         pass
 
 
-# ---------------------------------------------------------------------- Ekspor
 def snapshot_to_json(snapshot: SystemSnapshot) -> str:
     """Serialisasi snapshot ke string JSON."""
     return json.dumps(snapshot.to_dict(), indent=2, ensure_ascii=False)
