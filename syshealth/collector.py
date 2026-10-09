@@ -1,5 +1,3 @@
-"""Pengumpul metrik sistem real-time berbasis psutil."""
-
 from __future__ import annotations
 
 import os
@@ -51,15 +49,15 @@ class DiskData:
 class NetworkData:
     bytes_sent: int
     bytes_recv: int
-    upload_speed: float    # byte/detik
-    download_speed: float  # byte/detik
+    upload_speed: float
+    download_speed: float
 
 
 @dataclass
 class ProcessInfo:
     pid: int
     name: str
-    cpu_percent: float     # dinormalisasi 0-100 terhadap seluruh core
+    cpu_percent: float
     memory_percent: float
 
 
@@ -78,7 +76,6 @@ class SystemSnapshot:
     process_sort: str
 
     def to_dict(self) -> dict[str, Any]:
-        """Konversi snapshot ke dict murni (aman untuk JSON)."""
         return asdict(self)
 
 
@@ -87,14 +84,6 @@ def _clamp_percent(value: float) -> float:
 
 
 class SystemCollector:
-    """Mengumpulkan metrik sistem menggunakan psutil.
-
-    Catatan penting:
-    - Pengukuran CPU dan kecepatan jaringan bersifat *delta* antar pemanggilan,
-      sehingga pemanggilan pertama tidak akurat. Gunakan `warm_up()` sebelum
-      mengambil snapshot pertama.
-    """
-
     def __init__(
         self,
         top_n: int = 5,
@@ -112,16 +101,13 @@ class SystemCollector:
 
         self.top_n = top_n
         self.sort_by = sort_by
-        # Root drive: "/" di Linux/macOS, drive saat ini (mis. "C:\\") di Windows.
         self.disk_path = disk_path or os.path.abspath(os.sep)
         self._clock = clock
         self._last_net: Optional[tuple[int, int, float]] = None
         self._cpu_count = psutil.cpu_count(logical=True) or 1
 
-        # Prime pengukuran CPU agar pemanggilan berikutnya bermakna.
         psutil.cpu_percent(interval=None, percpu=True)
 
-    # ------------------------------------------------------------------ CPU
     def collect_cpu(self) -> CPUData:
         per_core = [
             round(_clamp_percent(v), 1)
@@ -134,7 +120,6 @@ class SystemCollector:
             core_count=len(per_core) or self._cpu_count,
         )
 
-    # --------------------------------------------------------------- Memory
     def collect_memory(self) -> MemoryData:
         vm = psutil.virtual_memory()
         return MemoryData(
@@ -157,7 +142,6 @@ class SystemCollector:
             percent=round(_clamp_percent(sw.percent), 1),
         )
 
-    # ----------------------------------------------------------------- Disk
     def collect_disk(self) -> DiskData:
         usage = psutil.disk_usage(self.disk_path)
         return DiskData(
@@ -168,10 +152,9 @@ class SystemCollector:
             percent=round(_clamp_percent(usage.percent), 1),
         )
 
-    # -------------------------------------------------------------- Network
     def collect_network(self) -> NetworkData:
         counters = psutil.net_io_counters()
-        if counters is None:  # sistem tanpa network interface
+        if counters is None:
             return NetworkData(0, 0, 0.0, 0.0)
 
         now = self._clock()
@@ -184,7 +167,6 @@ class SystemCollector:
             last_sent, last_recv, last_time = self._last_net
             elapsed = now - last_time
             if elapsed > 0:
-                # max(0, ...) menangani counter yang ter-reset / overflow.
                 upload_speed = max(0, sent - last_sent) / elapsed
                 download_speed = max(0, recv - last_recv) / elapsed
 
@@ -196,20 +178,14 @@ class SystemCollector:
             download_speed=download_speed,
         )
 
-    # ------------------------------------------------------------ Processes
     def collect_processes(self) -> list[ProcessInfo]:
-        """Ambil Top-N proses, diurutkan menurun berdasarkan CPU atau RAM.
-
-        CPU proses dinormalisasi (dibagi jumlah core) sehingga berada di 0-100%
-        seperti Task Manager, bukan 0-(100 x core) seperti `top`.
-        """
         attrs = ["pid", "name", "cpu_percent", "memory_percent"]
         processes: list[ProcessInfo] = []
 
         for proc in psutil.process_iter(attrs=attrs, ad_value=None):
             info = proc.info
             pid = info.get("pid")
-            if pid is None or pid == 0:  # lewati "System Idle Process"
+            if pid is None or pid == 0:
                 continue
             cpu = (info.get("cpu_percent") or 0.0) / self._cpu_count
             memory = info.get("memory_percent") or 0.0
@@ -229,9 +205,7 @@ class SystemCollector:
 
         return processes[: self.top_n]
 
-    # -------------------------------------------------------------- Snapshot
     def collect(self) -> SystemSnapshot:
-        """Kumpulkan seluruh metrik menjadi satu snapshot."""
         return SystemSnapshot(
             timestamp=datetime.now().isoformat(timespec="seconds"),
             hostname=platform.node() or "unknown",
@@ -247,7 +221,5 @@ class SystemCollector:
         )
 
     def warm_up(self, delay: float = 0.5) -> None:
-        """Ambil satu sampel awal lalu tunggu, agar metrik delta (CPU, jaringan,
-        CPU per proses) pada pemanggilan `collect()` berikutnya akurat."""
         self.collect()
         time.sleep(delay)
