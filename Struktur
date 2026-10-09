@@ -1,0 +1,11 @@
+syshealth-cli/
+├── pyproject.toml
+├── syshealth/
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── utils.py
+│   ├── collector.py
+│   ├── formatter.py
+│   └── main.py
+└── tests/
+    └── test_collector.py

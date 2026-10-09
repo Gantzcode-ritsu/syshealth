@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "syshealth-cli"
+dynamic = ["version"]
+description = "Alat pemantau kesehatan sistem berbasis TUI (psutil + rich + typer)."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "psutil>=5.9.0",
+    "rich>=13.0.0",
+    "typer>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+syshealth = "syshealth.main:app"
+
+[tool.setuptools]
+packages = ["syshealth"]
+
+[tool.setuptools.dynamic]
+version = { attr = "syshealth.__version__" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
