@@ -1,5 +1,3 @@
-"""Unit test untuk syshealth.collector dan syshealth.utils."""
-
 import json
 from types import SimpleNamespace
 
@@ -33,8 +31,6 @@ def _is_percent(value: float) -> bool:
 def collector() -> SystemCollector:
     return SystemCollector(top_n=5)
 
-
-# ============================================================ utils.format_bytes
 @pytest.mark.parametrize(
     "size, expected",
     [
@@ -81,7 +77,6 @@ def test_format_uptime(seconds, expected):
     assert format_uptime(seconds) == expected
 
 
-# ====================================================== utils.get_status_color
 @pytest.mark.parametrize(
     "percent, color, label",
     [
@@ -99,7 +94,6 @@ def test_status_color_and_label(percent, color, label):
     assert get_status_label(percent) == label
 
 
-# ================================================================ collector: CPU
 def test_collect_cpu(collector):
     cpu = collector.collect_cpu()
     assert isinstance(cpu, CPUData)
@@ -109,7 +103,6 @@ def test_collect_cpu(collector):
     assert all(_is_percent(v) for v in cpu.per_core_percent)
 
 
-# ============================================================= collector: memory
 def test_collect_memory(collector):
     mem = collector.collect_memory()
     assert isinstance(mem, MemoryData)
@@ -129,7 +122,6 @@ def test_collect_swap(collector):
     assert _is_percent(swap.percent)
 
 
-# ================================================================ collector: disk
 def test_collect_disk(collector):
     disk = collector.collect_disk()
     assert isinstance(disk, DiskData)
@@ -140,13 +132,12 @@ def test_collect_disk(collector):
     assert _is_percent(disk.percent)
 
 
-# ============================================================= collector: network
 def test_collect_network_structure(collector):
     net = collector.collect_network()
     assert isinstance(net, NetworkData)
     assert net.bytes_sent >= 0
     assert net.bytes_recv >= 0
-    assert net.upload_speed == 0.0  # belum ada pembanding pada panggilan pertama
+    assert net.upload_speed == 0.0 
     assert net.download_speed == 0.0
 
     second = collector.collect_network()
@@ -171,8 +162,8 @@ def test_network_speed_calculation(monkeypatch):
     second = collector.collect_network()
     assert second.bytes_sent == 3000
     assert second.bytes_recv == 8000
-    assert second.upload_speed == pytest.approx(1000.0)   # (3000-1000)/2s
-    assert second.download_speed == pytest.approx(3000.0)  # (8000-2000)/2s
+    assert second.upload_speed == pytest.approx(1000.0)
+    assert second.download_speed == pytest.approx(3000.0)
 
 
 def test_network_counter_reset_gives_zero_speed(monkeypatch):
@@ -192,7 +183,6 @@ def test_network_counter_reset_gives_zero_speed(monkeypatch):
     assert after_reset.download_speed == 0.0
 
 
-# ============================================================ collector: processes
 @pytest.mark.parametrize("sort_by", ["cpu", "memory"])
 def test_collect_processes(sort_by):
     collector = SystemCollector(top_n=5, sort_by=sort_by)
@@ -222,7 +212,6 @@ def test_invalid_arguments():
         SystemCollector(sort_by="network")
 
 
-# ================================================================ collector: snapshot
 def test_collect_snapshot_structure_and_json(collector):
     snapshot = collector.collect()
     assert isinstance(snapshot, SystemSnapshot)
