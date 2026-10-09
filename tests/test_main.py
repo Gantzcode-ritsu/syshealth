@@ -1,14 +1,19 @@
-"""Test end-to-end untuk CLI (syshealth.main) memakai CliRunner Typer."""
-
 import json
+import re
 
 from typer.testing import CliRunner
 
 from syshealth import __version__
 from syshealth.main import app
 
-runner = CliRunner()
+runner = CliRunner(env={"NO_COLOR": "1", "TERM": "dumb", "FORCE_COLOR": "0"})
 
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+
+def _plain(text: str) -> str:
+    """Buang kode warna ANSI dari output."""
+    return _ANSI_RE.sub("", text)
 
 def test_version_flag():
     result = runner.invoke(app, ["--version"])
@@ -43,7 +48,6 @@ def test_export_with_sort_memory(tmp_path):
 
 
 def test_export_default_output_path(tmp_path, monkeypatch):
-    # Pastikan default filename otomatis dibuat saat -o tidak diberikan.
     monkeypatch.chdir(tmp_path)
     result = runner.invoke(app, ["--export", "json"])
     assert result.exit_code == 0, result.output
@@ -54,7 +58,6 @@ def test_export_default_output_path(tmp_path, monkeypatch):
 
 
 def test_live_mode_requires_tty():
-    # CliRunner tidak menyediakan TTY, jadi mode live harus menolak dengan jelas.
     result = runner.invoke(app, [])
     assert result.exit_code == 1
     assert "terminal interaktif" in result.output
