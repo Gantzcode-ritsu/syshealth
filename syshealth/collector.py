@@ -5,7 +5,7 @@ import platform
 import time
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 import psutil
 
@@ -88,7 +88,7 @@ class SystemCollector:
         self,
         top_n: int = 5,
         sort_by: str = "cpu",
-        disk_path: Optional[str] = None,
+        disk_path: str | None = None,
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
         if top_n < 1:
@@ -103,7 +103,7 @@ class SystemCollector:
         self.sort_by = sort_by
         self.disk_path = disk_path or os.path.abspath(os.sep)
         self._clock = clock
-        self._last_net: Optional[tuple[int, int, float]] = None
+        self._last_net: tuple[int, int, float] | None = None
         self._cpu_count = psutil.cpu_count(logical=True) or 1
 
         psutil.cpu_percent(interval=None, percpu=True)
