@@ -1,5 +1,3 @@
-"""Entry point CLI syshealth-cli berbasis Typer."""
-
 import sys
 from datetime import datetime
 from enum import Enum
@@ -19,7 +17,7 @@ from syshealth.formatter import (
 app = typer.Typer(
     add_completion=False,
     help="syshealth-cli: pantau kesehatan sistem (CPU, RAM, Disk, Network, Proses) "
-    "langsung dari terminal.",
+    "langsung dari terminalk",
 )
 
 
@@ -47,7 +45,7 @@ def main(
             "--interval",
             "-i",
             min=0.5,
-            help="Selang refresh dashboard dalam detik (minimal 0.5).",
+            help="refresh dashboard dalam detik (minimal 0.5).",
         ),
     ] = 2.0,
     top: Annotated[
@@ -57,7 +55,7 @@ def main(
             "-t",
             min=1,
             max=50,
-            help="Jumlah proses teratas yang ditampilkan.",
+            help="Jumlah proses ter atas yang ditampilkan.",
         ),
     ] = 10,
     sort: Annotated[
@@ -69,7 +67,7 @@ def main(
         typer.Option(
             "--export",
             "-e",
-            help="Simpan snapshot metrik ke file (json / md) tanpa masuk mode Live.",
+            help="Simpan snapshot metrik ke file (json/ md) tanpa masuk mode Live.",
         ),
     ] = None,
     output: Annotated[
@@ -78,7 +76,7 @@ def main(
             "--output",
             "-o",
             dir_okay=False,
-            help="Path file hasil ekspor. Default: syshealth_snapshot_<waktu>.<format>",
+            help="Path file hasil ekspor. Default: syshealth_snapshot_<waktu>. <format>",
         ),
     ] = None,
     version: Annotated[
@@ -92,7 +90,6 @@ def main(
         ),
     ] = None,
 ) -> None:
-    """Jalankan Live Dashboard, atau ekspor satu snapshot dengan --export."""
     collector = SystemCollector(top_n=top, sort_by=sort.value)
 
     if export is not None:
