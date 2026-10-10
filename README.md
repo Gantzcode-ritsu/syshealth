@@ -425,7 +425,5 @@ Untuk pull request:
 | [psutil](https://github.com/giampaolo/psutil) | Membaca data sistem |
 | [rich](https://github.com/Textualize/rich) | Tampilan terminal |
 | [typer](https://github.com/fastapi/typer) | Antarmuka command line |
-
-## 📜 Lisensi
-
-MIT. Teks lengkap ada di berkas `LICENSE`.
+ 
+## Proyek ini dibangun secara mandiri dengan bantuan AI (Claude dan Gemini) untuk pembuatan struktur kode awal dan debugging.
